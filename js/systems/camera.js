@@ -12,10 +12,12 @@ const MARGIN_Y = 110;
 export const MAX_SPAN = VIEW_W / ZOOM_MIN - MARGIN_X;
 
 export class CoopCamera {
-  constructor(scene, players, worldW, worldH, mode) {
+  // mapH = altura real do mapa; worldH inclui o chão extra desenhado embaixo
+  constructor(scene, players, worldW, worldH, mode, mapH = worldH) {
     this.cam = scene.cameras.main;
     this.players = players;
     this.mode = mode;
+    this.mapH = mapH;
     this.cam.setBounds(0, 0, worldW, worldH);
     this.z = 1;
     this.look = 0;
@@ -54,6 +56,9 @@ export class CoopCamera {
 
   apply() {
     this.cam.setZoom(PX * this.z);
-    this.cam.centerOn(this.x, this.y);
+    // Não mostra o chão extra além do necessário: o fundo da tela fica no fim do mapa
+    const halfH = VIEW_H / this.z / 2;
+    const y = Math.min(this.y, Math.max(halfH, this.mapH - halfH));
+    this.cam.centerOn(this.x, y);
   }
 }

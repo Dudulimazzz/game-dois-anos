@@ -101,7 +101,7 @@ export class LevelScene extends Phaser.Scene {
     Touch.setLayout(this.mode);
 
     // --- câmera
-    this.coopCam = new CoopCamera(this, this.players, this.worldW, this.worldH + PAD * TILE, this.mode);
+    this.coopCam = new CoopCamera(this, this.players, this.worldW, this.worldH + PAD * TILE, this.mode, this.worldH);
     this.marker = this.add.image(0, 0, 'marker').setDepth(16).setVisible(this.mode === 'um');
     this.nameTags = this.players.map((p) =>
       this.add
