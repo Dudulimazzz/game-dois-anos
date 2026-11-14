@@ -1,0 +1,197 @@
+@font-face {
+  font-family: 'Pixelify Sans';
+  src: url('../assets/fonts/PixelifySans.ttf') format('truetype');
+  font-weight: 400 700;
+  font-display: block;
+}
+
+:root {
+  --bg: #120c1a;
+  --panel: #2a1d3a;
+  --edge: #5a3f73;
+  --dark: #140d1c;
+  --text: #fff4e6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Pixelify Sans', monospace;
+  color: var(--text);
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+#game canvas.reduzido {
+  image-rendering: auto;
+}
+
+#loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+
+/* ---------- controles de toque ---------- */
+#touch {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+#touch[hidden] {
+  display: none;
+}
+
+.tbtn {
+  pointer-events: auto;
+  touch-action: none;
+  width: 68px;
+  height: 68px;
+  margin: 0;
+  padding: 16px;
+  border: 3px solid var(--dark);
+  border-radius: 14px;
+  background: rgba(42, 29, 58, 0.55);
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.35), inset 0 3px 0 rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  opacity: 0.85;
+}
+.tbtn svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+  display: block;
+}
+.tbtn.big {
+  width: 84px;
+  height: 84px;
+  padding: 20px;
+}
+.tbtn.small {
+  width: 56px;
+  height: 56px;
+  padding: 14px;
+}
+.tbtn.on {
+  background: rgba(255, 179, 199, 0.55);
+  transform: translateY(2px);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.tgroup {
+  position: absolute;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+.tleft {
+  left: max(18px, env(safe-area-inset-left));
+}
+.tright {
+  right: max(18px, env(safe-area-inset-right));
+}
+
+/* modo 2 jogadores: cada um com um lado da tela */
+.tside {
+  position: absolute;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tside-ele {
+  left: max(12px, env(safe-area-inset-left));
+  align-items: flex-start;
+}
+.tside-ela {
+  right: max(12px, env(safe-area-inset-right));
+  align-items: flex-end;
+}
+.tside .tbtn {
+  border-color: var(--cor);
+  width: 60px;
+  height: 60px;
+  padding: 14px;
+}
+.tside .tbtn.small {
+  width: 50px;
+  height: 50px;
+  padding: 12px;
+}
+.trow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.tname {
+  font-size: 16px;
+  color: var(--cor);
+  text-shadow: 0 2px 0 var(--dark);
+  padding: 0 4px;
+}
+
+/* ---------- aviso para girar o celular ---------- */
+#rotate {
+  display: none;
+}
+@media (orientation: portrait) and (pointer: coarse) {
+  #rotate {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    font-size: 20px;
+    text-align: center;
+    padding: 24px;
+  }
+  .rotate-icon {
+    width: 48px;
+    height: 80px;
+    border: 4px solid #ffb3c7;
+    border-radius: 8px;
+    animation: girar 2s ease-in-out infinite;
+  }
+}
+@keyframes girar {
+  0%,
+  30% {
+    transform: rotate(0deg);
+  }
+  60%,
+  100% {
+    transform: rotate(-90deg);
+  }
+}

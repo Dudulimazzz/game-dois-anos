@@ -1,0 +1,6 @@
+# Fotos de referência dos personagens: NUNCA vão para o GitHub
+referencias/
+teste*.png
+
+node_modules/
+.DS_Store
