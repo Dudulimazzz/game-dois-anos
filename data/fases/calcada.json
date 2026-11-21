@@ -1,0 +1,115 @@
+{
+  "nome": "A calçada do condomínio",
+  "memoria": "calcada",
+  "tema": "calcada",
+  "legenda": {
+    "#": "rua de bloquete",
+    "M": "pilar/muro de pedra",
+    "=": "laje de garagem (dá para subir por baixo)",
+    "P": "portão de garagem (sobe quando abre)",
+    "B": "botão de pressão",
+    "L": "interfone (aperte interagir)",
+    "C": "caixa de encomenda (só ele empurra; volta ao lugar se for longe demais, veja \"caixas\")",
+    "K": "poste de luz (checkpoint: acende quando alguém passa)",
+    "h": "coração",
+    "1": "início dele",
+    "2": "início dela",
+    "s": "portaria do condomínio (enfeite)",
+    "b": "carrinho vermelho (enfeite)",
+    "a": "coqueiro no meio-fio (enfeite)",
+    "p": "(à noite não aparece nada)",
+    "o": "cone (enfeite)",
+    "l": "lixeira (enfeite)",
+    "x y v w u t r z q": "gatilhos de diálogo (veja \"gatilhos\")",
+    "E": "coqueiro do primeiro beijo (saída)"
+  },
+  "ligacoes": [
+    {
+      "de": "L1",
+      "para": "P1"
+    },
+    {
+      "de": "B1",
+      "para": "P2"
+    },
+    {
+      "de": "L2",
+      "para": "P3"
+    }
+  ],
+  "caixas": [
+    {
+      "_comoFunciona": "se o caixote 1 for empurrado para fora das colunas 'min' a 'max', ele volta para o lugar dele",
+      "min": 28,
+      "max": 44
+    }
+  ],
+  "gatilhos": {
+    "x": {
+      "dialogo": "ele_inicio",
+      "quem": "ele"
+    },
+    "y": {
+      "dialogo": "ela_inicio",
+      "quem": "ela"
+    },
+    "v": {
+      "dialogo": "ele_grade",
+      "quem": "ele"
+    },
+    "w": {
+      "dialogo": "ela_fresta",
+      "quem": "ela"
+    },
+    "u": {
+      "dialogo": "ele_caixote",
+      "quem": "ele"
+    },
+    "t": {
+      "dialogo": "ela_muro",
+      "quem": "ela"
+    },
+    "r": {
+      "dialogo": "ele_muro",
+      "quem": "ele"
+    },
+    "z": {
+      "dialogo": "ele_perto",
+      "quem": "ele"
+    },
+    "q": {
+      "dialogo": "ela_perto",
+      "quem": "ela"
+    }
+  },
+  "eventos": {
+    "L1": "ela_interfone",
+    "P1": "ele_portao",
+    "B1": "ele_botao",
+    "L2": "ela_subiu"
+  },
+  "final": {
+    "dialogo": "final",
+    "comemorar": false,
+    "beijo": true
+  },
+  "mapa": [
+    "M..............................................................................................M",
+    "M..............................................................................................M",
+    "M..............................................................................................M",
+    "M..............................................................................................M",
+    "M......................M.......................................................................M",
+    "M......................M.......................................................................M",
+    "M......................M.......................M...............................................M",
+    "M......................P.......................M........................M......................M",
+    "M......................P.......................M..................hL....M......................M",
+    "M..............h.......P.......................P.................====...M....h.................M",
+    "M............=====.====M====..........h........P.....h..................P..====.........EE.....M",
+    "M....y....x............h.......................P........................P...............EE.....M",
+    "Ms.o2..b.1..p.....v..w....L..a...u.C.....l..BM.P.K..o..o..p.a..tr.......P.K.....a.zapqa.EE.....M",
+    "#####################################################..#########################################",
+    "#####################################################..#########################################",
+    "#####################################################..#########################################",
+    "#####################################################..#########################################"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "nome": "O ônibus",
+  "memoria": "onibus",
+  "tema": "onibus",
+  "legenda": {
+    "R": "teto do ônibus",
+    "W": "parede da frente/traseira",
+    "#": "piso",
+    "k": "lataria",
+    "g": "rua",
+    "b": "banco (sólido)",
+    "=": "corrimão amarelo do teto (dá para subir por baixo)",
+    "|": "divisória (sólida)",
+    "P": "porta (sobe para dentro da divisória)",
+    "B": "botão de pressão no piso",
+    "L": "botão de parada (aperte interagir)",
+    "C": "mochila pesada (só ele empurra)",
+    "E": "porta do meio (saída)",
+    "h": "coração",
+    "1": "início dele",
+    "2": "início dela",
+    "I": "barra de segurar (enfeite)",
+    "n": "passageiro ao fundo (enfeite)",
+    "D": "motorista (enfeite)",
+    "S": "placa PARADA SOLICITADA (enfeite)",
+    "x y z q": "gatilhos de diálogo (veja \"gatilhos\")",
+    "V": "validador de cartão (enfeite)",
+    "X": "lixeira orgânico/seco (enfeite)",
+    "Q": "letreiro de LED da linha (texto em memorias.json → letreiro)"
+  },
+  "ligacoes": [
+    {
+      "de": "B1",
+      "para": "P2"
+    },
+    {
+      "de": "L1",
+      "para": "P1"
+    }
+  ],
+  "gatilhos": {
+    "x": {
+      "dialogo": "ele_inicio",
+      "quem": "ele"
+    },
+    "y": {
+      "dialogo": "ela_inicio",
+      "quem": "ela"
+    },
+    "z": {
+      "dialogo": "ele_perto",
+      "quem": "ele"
+    },
+    "q": {
+      "dialogo": "ela_perto",
+      "quem": "ela"
+    }
+  },
+  "eventos": {
+    "B1": "ele_mochila",
+    "L1": "ela_parada",
+    "P1": "ele_porta",
+    "P2": "ela_porta"
+  },
+  "final": {
+    "dialogo": "final",
+    "comemorar": false
+  },
+  "mapa": [
+    "..............................................",
+    "..............................................",
+    ".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.",
+    ".W....n..I.n.....I|.n...S..I...n...|I...n.Q.W.",
+    ".W................|................|........W.",
+    ".W............h...|................|..h.....W.",
+    ".W.......X..=====.P........X.......P.===....W.",
+    ".W................P...EE....bbbbbb.P........W.",
+    ".Wbb..........bb..P.h.EE...........P.bb.....W.",
+    ".Wbb1x.C.....Bbb..P..zEE.qL...h...bP.bby2.VDW.",
+    ".############################################.",
+    ".kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.",
+    "gggggggggggggggggggggggggggggggggggggggggggggg",
+    "gggggggggggggggggggggggggggggggggggggggggggggg",
+    "gggggggggggggggggggggggggggggggggggggggggggggg",
+    "gggggggggggggggggggggggggggggggggggggggggggggg",
+    "gggggggggggggggggggggggggggggggggggggggggggggg"
+  ]
+}

@@ -17,6 +17,10 @@ export class HelpScene extends Phaser.Scene {
 
   create() {
     Touch.setLayout(null);
+    // painel "salta" ao abrir
+    const cam = this.cameras.main;
+    cam.setZoom(0.94).setAlpha(0);
+    this.tweens.add({ targets: cam, zoom: 1, alpha: 1, duration: 240, ease: 'Back.easeOut' });
     const nomes = this.registry.get('nomes');
     this.add.rectangle(0, 0, GAME_W, GAME_H, 0x120c1a, 0.7).setOrigin(0).setInteractive();
     const w = 820, h = 470;

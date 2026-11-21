@@ -4,7 +4,7 @@
 import { TILE } from '../config.js';
 
 // Gerador pseudoaleatório com semente (o mesmo desenho sempre que o jogo abre)
-function rng(seed) {
+export function rng(seed) {
   let a = seed >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;
@@ -15,7 +15,7 @@ function rng(seed) {
   };
 }
 
-function makeCanvas(scene, key, w, h, draw) {
+export function makeCanvas(scene, key, w, h, draw) {
   if (scene.textures.exists(key)) scene.textures.remove(key);
   const tex = scene.textures.createCanvas(key, w, h);
   const ctx = tex.getContext();
@@ -30,7 +30,7 @@ function makeCanvas(scene, key, w, h, draw) {
 }
 
 // Desenha a partir de linhas de texto: cada caractere é uma cor da paleta ('.' = vazio)
-function fromRows(scene, key, rows, pal) {
+export function fromRows(scene, key, rows, pal) {
   const h = rows.length;
   const w = Math.max(...rows.map((r) => r.length));
   return makeCanvas(scene, key, w, h, (ctx, px) => {
@@ -315,85 +315,6 @@ function makeObjects(scene) {
   ], { o: '#2a1d33', w: '#fff4e6' });
 }
 
-// ---------------------------------------------------------------- personagens provisórios
-// Na Fase 1 os personagens são "blocos" com as cores das roupas de cada um.
-function makePlaceholders(scene) {
-  // Ele: 12x34 — cabelo preto cacheado, pele morena, camiseta preta, jeans escuro, tênis branco
-  const ele = [
-    '...hhhhhh...',
-    '..hhhhhhhh..',
-    '.hhhhhhhhhh.',
-    '.hhhhhhhhhh.',
-    '.hsssssssss.',
-    '.ssssssssess',
-    '.ssssssssess',
-    '.sssssssssss',
-    '.ssssssssmms',
-    '.sssssswwwws',
-    '..ssssssssss',
-    '...ssssssss.',
-    '....ssss....',
-    '.tttttttttt.',
-    'tttttttttttt',
-    'tttttttttttt',
-    'stttttttttts',
-    'stttttttttts',
-    'stttttttttts',
-    'stttttttttts',
-    'stttttttttts',
-    '.tttttttttt.',
-    '.jjjjjjjjjj.',
-    '.jjjjjjjjjj.',
-    '.jjjjjjjjjj.',
-    '.jjjjj.jjjj.',
-    '.jjjjj.jjjj.',
-    '.jjjjj.jjjj.',
-    '.jjjjj.jjjj.',
-    '.jjjjj.jjjj.',
-    '.jjjjj.jjjj.',
-    '.jjjjj.jjjj.',
-    'wwwwww.wwwww',
-    'wkwkkw.wkwkw',
-  ];
-  fromRows(scene, 'ele_ph', ele, {
-    h: '#16121a', s: '#8d5a3b', e: '#1a0f0a', m: '#2a1810', w: '#f4f1ec', t: '#1f1b24', j: '#2a3142', k: '#111111',
-  });
-
-  // Ela: 10x27 — cabelo castanho com pontas mel, pele clara, blusa rosa, jeans claro flare, sandália clara
-  const ela = [
-    '..hhhhhh..',
-    '.hhhhhhhh.',
-    'hhhhhhhhhh',
-    'hhssssssHh',
-    'hhsssssesH',
-    'hhsssssesH',
-    'hhsrsssssH',
-    'hhssssmmsH',
-    'hHsssssssH',
-    'hHHsssssHH',
-    'HHHpppppHH',
-    'HHppppppHH',
-    'HHppppppHH',
-    'Hspppppps.',
-    '.sppppppps',
-    '.spppppps.',
-    '..jjjjjjj.',
-    '..jjjjjjj.',
-    '..jjjjjjj.',
-    '..jjj.jjj.',
-    '..jjj.jjj.',
-    '..jjj.jjj.',
-    '.jjjj.jjjj',
-    '.jjjj.jjjj',
-    '.jjjj.jjjj',
-    '.cccc.cccc',
-    '..sss..sss',
-  ];
-  fromRows(scene, 'ela_ph', ela, {
-    h: '#4a2c1e', H: '#c58a4f', s: '#f3c9a8', e: '#3a2418', r: '#f29aa6', m: '#d8697a', p: '#f7b3cc', j: '#93b8e0', c: '#efe0c8',
-  });
-}
-
 // ---------------------------------------------------------------- fundo
 function makeBackground(scene) {
   // Céu de fim de tarde em faixas com pontilhado (dither)
@@ -467,9 +388,94 @@ function makeBackground(scene) {
   ], { m: '#fff1c9', M: '#ead7a6' });
 }
 
+// ---------------------------------------------------------------- interface (progresso, seleção, memória)
+function makeUi(scene) {
+  // Espaço vazio da barra de corações (mesmo tamanho do heart_big)
+  fromRows(scene, 'heart_slot', [
+    '..ooo...ooo..',
+    '.odddo.odddo.',
+    'odddddodddddo',
+    'odddddddddddo',
+    'odddddddddddo',
+    'odddddddddddo',
+    '.odddddddddo.',
+    '..odddddddo..',
+    '...odddddo...',
+    '....odddo....',
+    '.....odo.....',
+    '......o......',
+  ], { o: '#6e5a84', d: '#2e2140' });
+
+  // Cadeado (fase bloqueada)
+  fromRows(scene, 'padlock', [
+    '..ooooo..',
+    '.oLLLLLo.',
+    '.oLo.oLo.',
+    '.oLo.oLo.',
+    'ooooooooo',
+    'oGGGGGGGo',
+    'oGGGoGGGo',
+    'oGGGoGGGo',
+    'oGGGGGGGo',
+    'ohhhhhhho',
+    'ooooooooo',
+  ], { o: '#2a1d33', L: '#b8a6c8', G: '#ffd36e', h: '#c9963a' });
+
+  // Cone (fase em construção)
+  fromRows(scene, 'cone', [
+    '....o....',
+    '...oOo...',
+    '...oOo...',
+    '..oWWWo..',
+    '..oOOOo..',
+    '.oOOOOOo.',
+    '.oWWWWWo.',
+    'oOOOOOOOo',
+    'ooooooooo',
+  ], { o: '#2a1d33', O: '#ff8a3d', W: '#fff4e6' });
+
+  // Envelope (carta final)
+  fromRows(scene, 'envelope', [
+    'ooooooooooooooo',
+    'ooWWWWWWWWWWWoo',
+    'oWoWWWWWWWWWoWo',
+    'oWWoWWWWWWWoWWo',
+    'oWWWohWWWhoWWWo',
+    'oWWWhHhWhHhWWWo',
+    'oWWWhhhhhhhWWWo',
+    'oWWWWhhhhhWWWWo',
+    'oWWWWWhhhWWWWWo',
+    'oPPPPPPhPPPPPPo',
+    'ooooooooooooooo',
+  ], { o: '#5a1630', W: '#fff4e6', P: '#f1d9c6', h: '#ff5f87', H: '#ffc2d4' });
+
+  // Medalhão de fase no mapa de seleção (círculo pixelado 24x24)
+  const medal = (key, fill, edge, shine) =>
+    makeCanvas(scene, key, 24, 24, (ctx, px) => {
+      for (let y = 0; y < 24; y++) {
+        for (let x = 0; x < 24; x++) {
+          const d = Math.hypot(x - 11.5, y - 11.5);
+          if (d > 11.6) continue;
+          let c = d > 10.3 ? '#140d1c' : d > 8.6 ? edge : fill;
+          if (d <= 8.6 && y < 8 && x > 5 && x < 14 && d > 6) c = shine;
+          px(x, y, c);
+        }
+      }
+    });
+  medal('medal_on', '#3a2850', '#ffb3c7', '#4b3566');
+  medal('medal_done', '#5a2440', '#ffd36e', '#6e2e50');
+  medal('medal_off', '#231931', '#4a3a5c', '#2a1f3a');
+
+  // Fita adesiva (prende a foto)
+  makeCanvas(scene, 'tape', 14, 6, (ctx, px) => {
+    px(0, 0, 'rgba(255,198,214,0.75)', 14, 6);
+    px(0, 0, 'rgba(255,255,255,0.35)', 14, 1);
+  });
+}
+
 export function generateTextures(scene) {
   makeTiles(scene);
   makeObjects(scene);
-  makePlaceholders(scene);
   makeBackground(scene);
+  makeUi(scene);
 }

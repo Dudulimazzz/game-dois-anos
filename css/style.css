@@ -49,13 +49,71 @@ body {
   image-rendering: auto;
 }
 
+/* ---------- tela de carregamento ---------- */
 #loading {
   position: fixed;
   inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 24px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: radial-gradient(circle at 50% 45%, #2a1d3a 0%, var(--bg) 70%);
+  transition: opacity 0.4s ease;
+}
+#loading.saindo {
+  opacity: 0;
+  pointer-events: none;
+}
+/* coração em pixel art feito com sombras (grade 7x6, pixel de 6px) */
+.load-heart {
+  width: 6px;
+  height: 6px;
+  margin: 0 42px 36px 0;
+  color: #ff5f87;
+  box-shadow:
+    6px 0 0 currentColor, 12px 0 0 currentColor, 24px 0 0 currentColor, 30px 0 0 currentColor,
+    0 6px 0 currentColor, 6px 6px 0 #fff, 12px 6px 0 currentColor, 18px 6px 0 currentColor, 24px 6px 0 currentColor, 30px 6px 0 currentColor, 36px 6px 0 currentColor,
+    0 12px 0 currentColor, 6px 12px 0 currentColor, 12px 12px 0 currentColor, 18px 12px 0 currentColor, 24px 12px 0 currentColor, 30px 12px 0 currentColor, 36px 12px 0 currentColor,
+    6px 18px 0 currentColor, 12px 18px 0 currentColor, 18px 18px 0 currentColor, 24px 18px 0 currentColor, 30px 18px 0 currentColor,
+    12px 24px 0 currentColor, 18px 24px 0 currentColor, 24px 24px 0 currentColor,
+    18px 30px 0 currentColor;
+  transform-origin: 21px 18px;
+  animation: bater 0.9s steps(1) infinite;
+}
+@keyframes bater {
+  0%, 60% { transform: scale(1); }
+  20% { transform: scale(1.18); }
+  40% { transform: scale(1.05); }
+}
+.load-text {
+  margin: 0;
+  font-size: 22px;
   letter-spacing: 1px;
+}
+.load-text span {
+  animation: ponto 1.2s infinite;
+  opacity: 0;
+}
+.load-text span:nth-child(2) { animation-delay: 0.2s; }
+.load-text span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes ponto {
+  0%, 20% { opacity: 0; }
+  40%, 100% { opacity: 1; }
+}
+.load-bar {
+  width: min(240px, 60vw);
+  height: 12px;
+  padding: 2px;
+  background: var(--dark);
+  border: 2px solid var(--edge);
+}
+#load-fill {
+  height: 100%;
+  width: 15%;
+  background: #ffb3c7;
+  transition: width 0.25s steps(6);
 }
 
 /* ---------- controles de toque ---------- */
@@ -158,6 +216,46 @@ body {
   padding: 0 4px;
 }
 
+/* celulares deitados com pouca altura: botões um pouco menores e mais colados na borda */
+@media (max-height: 420px) {
+  .tbtn {
+    width: 58px;
+    height: 58px;
+    padding: 14px;
+  }
+  .tbtn.big {
+    width: 72px;
+    height: 72px;
+    padding: 18px;
+  }
+  .tbtn.small {
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+  }
+  .tside .tbtn {
+    width: 52px;
+    height: 52px;
+    padding: 12px;
+  }
+  .tside .tbtn.small {
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+  }
+  .tgroup,
+  .tside {
+    bottom: max(10px, env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+  .trow {
+    gap: 8px;
+  }
+  .tname {
+    font-size: 13px;
+  }
+}
+
 /* ---------- aviso para girar o celular ---------- */
 #rotate {
   display: none;
@@ -194,4 +292,24 @@ body {
   100% {
     transform: rotate(-90deg);
   }
+}
+
+/* caixinha de erro (só aparece se algo der errado) */
+#erro-jogo {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  z-index: 50;
+  max-width: min(560px, 90vw);
+  max-height: 40vh;
+  overflow: auto;
+  margin: 0;
+  padding: 10px 12px;
+  font: 12px/1.4 monospace;
+  white-space: pre-wrap;
+  color: #fff4e6;
+  background: rgba(60, 10, 30, 0.92);
+  border: 2px solid #ff8fb0;
+  border-radius: 6px;
+  cursor: pointer;
 }

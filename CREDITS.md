@@ -15,5 +15,12 @@ Todo asset de terceiros usado no jogo, com autor e licença.
 
 ## Gráficos
 
-- Tiles, objetos, fundos e personagens provisórios: desenhados por código no próprio projeto
-  (`js/systems/textures.js`).
+- Tiles, objetos e fundos: desenhados por código no próprio projeto (`js/systems/textures.js`).
+- Personagens (Dudu e Ágata) e animações: pixel art original feita para este jogo
+  (`js/systems/characters.js`).
+
+## Música e sons
+
+- Músicas (título, ônibus, memória): composições originais em estilo chiptune, feitas para este jogo
+  e tocadas por síntese no navegador (`js/systems/musicas.js` e `js/systems/sfx.js`). Sem arquivos de áudio.
+- Efeitos sonoros: sintetizados por código no próprio projeto (`js/systems/sfx.js`).

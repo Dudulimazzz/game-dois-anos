@@ -1,0 +1,9 @@
+{
+  "_COMO_EDITAR": "Lista das fases que já existem em data/fases/ (o nome do arquivo, sem .json). Fase do memorias.json que não está aqui aparece como 'em construção' na seleção.",
+  "prontas": [
+    "rua",
+    "onibus",
+    "calcada",
+    "bulls"
+  ]
+}

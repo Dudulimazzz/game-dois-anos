@@ -4,6 +4,8 @@ import { GAME_W, GAME_H, PX, UI } from '../config.js';
 import { txt, nightScenery, fadeTo } from '../systems/ui.js';
 import { Input } from '../systems/controls.js';
 import { Touch } from '../systems/touch.js';
+import { Music } from '../systems/sfx.js';
+import { ORIGIN_X, ORIGIN_Y } from '../systems/characters.js';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -12,6 +14,7 @@ export class TitleScene extends Phaser.Scene {
 
   create() {
     Touch.setLayout(null);
+    Music.play('titulo');
     this.cameras.main.fadeIn(500, 18, 12, 26);
     const mem = this.registry.get('memorias') || {};
     const jogo = mem.jogo || {};
@@ -21,8 +24,9 @@ export class TitleScene extends Phaser.Scene {
 
     // Os dois na colina, lado a lado
     const groundY = GAME_H - 64;
-    this.ele = this.add.image(GAME_W / 2 - 18, groundY, 'ele_ph').setOrigin(0.5, 1).setScale(PX);
-    this.ela = this.add.image(GAME_W / 2 + 18, groundY, 'ela_ph').setOrigin(0.5, 1).setScale(PX).setFlipX(true);
+    this.ele = this.add.sprite(GAME_W / 2 - 20, groundY, 'ele-sheet').setOrigin(ORIGIN_X, ORIGIN_Y).setScale(PX).play('ele-idle');
+    this.ela = this.add.sprite(GAME_W / 2 + 18, groundY, 'ela-sheet').setOrigin(ORIGIN_X, ORIGIN_Y).setScale(PX).setFlipX(true).play('ela-idle');
+    this.ela.anims.setProgress(0.5);
     this.time.addEvent({
       delay: 2600,
       loop: true,

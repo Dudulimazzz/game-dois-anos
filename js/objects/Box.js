@@ -3,10 +3,10 @@
 import { FEEL, TILE } from '../config.js';
 
 export class Box {
-  constructor(scene, c, r) {
+  constructor(scene, c, r, key = 'box') {
     this.scene = scene;
     this.home = { x: c * TILE + TILE / 2, y: r * TILE + TILE / 2 };
-    this.sprite = scene.physics.add.image(this.home.x, this.home.y, 'box').setDepth(5);
+    this.sprite = scene.physics.add.image(this.home.x, this.home.y, key).setDepth(5);
     this.sprite.box = this;
     this.body = this.sprite.body;
     this.body.pushable = false;
@@ -30,8 +30,9 @@ export class Box {
     if (onGround && !this.wasOnGround) fx.dust(b.center.x, b.bottom, 6);
     this.wasOnGround = onGround;
     this.pushDir = 0;
-    // Se cair para fora do mapa, volta ao lugar original
-    if (b.top > worldH + 32) {
+    // Se cair para fora do mapa (ou passar dos limites da fase), volta ao lugar original
+    const fora = (this.minX !== undefined && b.right < this.minX) || (this.maxX !== undefined && b.left > this.maxX);
+    if (b.top > worldH + 32 || fora) {
       b.reset(this.home.x, this.home.y);
       fx.sparkle(this.home.x, this.home.y, 6);
     }

@@ -1,0 +1,102 @@
+{
+  "nome": "Bulls (Gama)",
+  "memoria": "bulls",
+  "tema": "bulls",
+  "legenda": {
+    "#": "calçada (lado de fora)",
+    "%": "piso de porcelanato (lado de dentro)",
+    "M": "fachada/parede de vidro",
+    "T": "teto",
+    "D": "deck de madeira",
+    "m": "mesa comprida (sólida; só ela passa por baixo)",
+    "R": "tablado das mesas perto do vidro (alto para ela)",
+    "P": "porta automática de vidro (abre enquanto alguém pisa num dos tapetes)",
+    "B": "tapete da porta automática",
+    "C": "cadeira (só ele empurra; volta ao lugar se for longe demais)",
+    "K": "cardápio em pé (checkpoint)",
+    "E": "a mesa deles (saída)",
+    "h": "coração",
+    "1": "início dele",
+    "2": "início dela",
+    "r": "fachada vermelha do vizinho",
+    "f": "fachada do Bulls",
+    "c": "carro",
+    "q": "moto",
+    "a": "árvore",
+    "t": "parede de tijolo com o quadro",
+    "s": "sofá capitonê",
+    "x": "mesa com cadeiras (enfeite)",
+    "g": "parede de pedras com o touro vermelho",
+    "k": "balcão e janela da cozinha",
+    "w": "garçom andando",
+    "v": "parede de vidro",
+    "j n u y i o": "gatilhos de diálogo (veja \"gatilhos\")",
+    "W": "parede (limite da fase)"
+  },
+  "ligacoes": [
+    {
+      "de": "B1",
+      "para": "P1"
+    },
+    {
+      "de": "B2",
+      "para": "P1"
+    }
+  ],
+  "caixas": [
+    {
+      "_comoFunciona": "se a cadeira for empurrada para fora das colunas 'min' a 'max', ela volta para o lugar",
+      "min": 40,
+      "max": 59
+    }
+  ],
+  "gatilhos": {
+    "j": {
+      "dialogo": "ele_porta",
+      "quem": "ele"
+    },
+    "n": {
+      "dialogo": "ela_dentro",
+      "quem": "ela"
+    },
+    "u": {
+      "dialogo": "ele_mesa",
+      "quem": "ele"
+    },
+    "y": {
+      "dialogo": "ela_mesa",
+      "quem": "ela"
+    },
+    "i": {
+      "dialogo": "ele_cadeira",
+      "quem": "ele"
+    },
+    "o": {
+      "dialogo": "ela_tablado",
+      "quem": "ela"
+    }
+  },
+  "final": {
+    "dialogo": "final",
+    "cena": "mesa"
+  },
+  "mapa": [
+    "W...............................................................................",
+    "W...............................................................................",
+    "W................TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "W................M.............................................................M",
+    "W................M.............................................................M",
+    "W................M.............................................................M",
+    "W................M.............................................................M",
+    "W................M......................h.............................EE.......M",
+    "W................M..........h...................................h.....EE.......M",
+    "W................M..........................................v...x.....EE.......M",
+    "W..........h.....P.......mmmmmmm.......................h....RRRRRRRRRRRRRRRRRRRM",
+    "W................P...n.y....................w...............RRRRRRRRRRRRRRRRRRRM",
+    "Wr2a1cjqfqDDDD.B.PtBs..u....h....x.Kg.........ki..C......o..RRRRRRRRRRRRRRRRRRRM",
+    "#################%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
+    "#################%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
+    "#################%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%",
+    "#################%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+  ]
+}

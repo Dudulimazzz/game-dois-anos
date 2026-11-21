@@ -3,12 +3,15 @@
 
 import { TILE, PERSONAGENS } from '../config.js';
 import { parseLevel } from '../systems/levelLoader.js';
-import { TILE_PLANK } from '../systems/textures.js';
+import { getTheme } from '../themes/index.js';
+import { Dialog } from '../systems/dialog.js';
+import { Sfx, Music } from '../systems/sfx.js';
 import { createFx } from '../systems/fx.js';
 import { CoopCamera, MAX_SPAN } from '../systems/camera.js';
 import { InputReader, PlayerInput, BINDS, EMPTY_INPUT } from '../systems/controls.js';
 import { Touch } from '../systems/touch.js';
 import { Save } from '../systems/save.js';
+import { Progresso } from '../systems/progresso.js';
 import { Player } from '../objects/Player.js';
 import { Box } from '../objects/Box.js';
 import { PressureButton, Lever, Door } from '../objects/Mechanisms.js';
@@ -31,7 +34,11 @@ export class LevelScene extends Phaser.Scene {
   }
 
   create() {
-    const lvl = parseLevel(this.cache.json.get(`fase:${this.faseKey}`));
+    const raw = this.cache.json.get(`fase:${this.faseKey}`);
+    const theme = getTheme(raw.tema);
+    this.theme = theme;
+    if (theme.textures) theme.textures(this);
+    const lvl = parseLevel(raw, theme);
     this.lvl = lvl;
     this.worldW = lvl.cols * TILE;
     this.worldH = lvl.rows * TILE;
@@ -40,7 +47,7 @@ export class LevelScene extends Phaser.Scene {
     this.heartsTotal = lvl.hearts.length;
     this.nomes = this.registry.get('nomes');
 
-    this.scene.launch('LevelBG', { level: this });
+    this.scene.launch('LevelBG', { level: this, theme });
     this.scene.sendToBack('LevelBG');
 
     this.fx = createFx(this);
@@ -52,22 +59,31 @@ export class LevelScene extends Phaser.Scene {
     const data = lvl.tiles.map((r) => r.slice());
     for (let i = 0; i < PAD; i++) data.push(lvl.tiles[lvl.rows - 1].slice());
     const map = this.make.tilemap({ data, tileWidth: TILE, tileHeight: TILE });
-    const tileset = map.addTilesetImage('tiles', 'tiles', TILE, TILE, 0, 0);
+    const tileset = map.addTilesetImage(theme.tileset, theme.tileset, TILE, TILE, 0, 0);
     this.layer = map.createLayer(0, tileset, 0, 0).setDepth(2);
-    this.layer.setCollisionByExclusion([-1, TILE_PLANK]);
+    const oneway = theme.oneway || [];
+    this.layer.setCollisionByExclusion([-1, ...oneway]);
     this.layer.forEachTile((t) => {
-      if (t.index === TILE_PLANK) t.setCollision(false, false, true, false);
+      if (oneway.includes(t.index)) t.setCollision(false, false, true, false);
     });
+    if (theme.decorate) theme.decorate(this, lvl);
+    const ok = theme.objects || {};
 
     // --- objetos
-    this.doors = lvl.doors.map((d) => new Door(this, d.c, d.r, d.height, this.fx));
+    this.doors = lvl.doors.map((d) => new Door(this, d.c, d.r, d.height, this.fx, ok.door));
     this.buttons = lvl.buttons.map((b) => new PressureButton(this, b.c, b.r, this.fx));
-    this.levers = lvl.levers.map((l) => new Lever(this, l.c, l.r, this.fx));
-    this.boxes = lvl.boxes.map((b) => new Box(this, b.c, b.r));
+    this.levers = lvl.levers.map((l) => new Lever(this, l.c, l.r, this.fx, ok.lever));
+    this.boxes = lvl.boxes.map((b, i) => {
+      const box = new Box(this, b.c, b.r, ok.box);
+      const lim = (lvl.data.caixas || [])[i];
+      if (lim && lim.min !== undefined) box.minX = lim.min * TILE;
+      if (lim && lim.max !== undefined) box.maxX = (lim.max + 1) * TILE;
+      return box;
+    });
     this.spikes = lvl.spikes.map((s) => new Spikes(this, s.c, s.r));
-    this.checkpoints = lvl.checkpoints.map((k) => new Checkpoint(this, k.c, k.r, this.fx));
+    this.checkpoints = lvl.checkpoints.map((k) => new Checkpoint(this, k.c, k.r, this.fx, ok.checkpoint));
     this.hearts = lvl.hearts.map((h) => new Heart(this, h.c, h.r, this.fx));
-    this.exit = lvl.exitCells.length ? new Exit(this, lvl.exitCells, this.fx) : null;
+    this.exit = lvl.exitCells.length ? new Exit(this, lvl.exitCells, this.fx, ok) : null;
     this.wireMechanisms(lvl.links);
 
     // --- personagens
@@ -77,11 +93,28 @@ export class LevelScene extends Phaser.Scene {
     this.players = [this.ele, this.ela];
     this.active = this.ele;
 
+    // --- diálogos (textos em data/memorias.json)
+    const mem = this.registry.get('memorias') || {};
+    const faseMem = (mem.fases || []).find((f) => f.id === lvl.memoria) || {};
+    this.faseMem = faseMem;
+    this.dialogos = faseMem.dialogos || {};
+    this.dialog = new Dialog(this, { ele: this.ele, ela: this.ela });
+    this.triggers = lvl.triggers.map((t) => ({ ...t, fired: false }));
+    this.eventsFired = new Set();
+
     // --- colisões
     const zones = this.players.map((p) => p.zone);
     const boxSprites = this.boxes.map((b) => b.sprite);
     const doorSprites = this.doors.map((d) => d.sprite);
-    this.physics.add.collider(zones, this.layer);
+    // plataformas "só por cima" podem ser atravessadas quando alguém não cabe em cima delas
+    this.oneway = oneway;
+    // Plataforma "só por cima" de verdade: segura só quem estava acima dela no passo anterior
+    // (sem isso, a física "puxava" para cima quem chegasse a até 12 px abaixo da plataforma).
+    this.physics.add.collider(zones, this.layer, null, (z, t) => {
+      if (!oneway.includes(t.index)) return true;
+      if (z.player.dropThrough > 0) return false;
+      return z.body.prev.y + z.body.height <= t.pixelY + 2;
+    });
     this.physics.add.collider(boxSprites, this.layer);
     this.physics.add.collider(zones, doorSprites);
     this.physics.add.collider(boxSprites, doorSprites);
@@ -117,10 +150,14 @@ export class LevelScene extends Phaser.Scene {
     this.physics.world.on('worldstep', this.step, this);
     this.events.once('shutdown', () => {
       if (this.physics.world) this.physics.world.off('worldstep', this.step, this);
+      this.dialog.destroy();
       Touch.setLayout(null);
     });
 
     this.scene.launch('HUD', { level: this });
+    Music.play(theme.musica || 'onibus');
+    // cena de abertura do tema (ex.: o ônibus chegando no ponto)
+    if (theme.start) theme.start(this);
     this.cameras.main.fadeIn(400, 18, 12, 26);
 
     // Mostra os controles na primeira vez de cada modo
@@ -172,11 +209,49 @@ export class LevelScene extends Phaser.Scene {
     return false;
   }
 
+  // Impede alguém de "se espremer" por um vão mais baixo que ele (a física separa pelo
+  // menor eixo e deixaria a cabeça atravessar o teto de um vão de 2 blocos):
+  // se o corpo ficou dentro de uma parede sólida, desfaz o movimento horizontal.
+  keepOutOfWalls(p) {
+    const b = p.body;
+    if (!b.enable || p.frozen) return;
+    const insideAt = (x, y) =>
+      this.layer
+        .getTilesWithinWorldXY(x + 1, y + 1, b.width - 2, b.height - 2)
+        .some((t) => t.index >= 0 && t.collideLeft && t.collideRight && t.collideDown);
+    if (!insideAt(b.x, b.y)) return;
+    const wasInside = insideAt(b.prev.x, b.prev.y);
+    // 1) tentou entrar de lado num vão mais baixo que ele: desfaz o passo
+    if (!wasInside && b.x !== b.prev.x) {
+      b.x = b.prev.x;
+      b.velocity.x = 0;
+      b.updateCenter();
+      if (!insideAt(b.x, b.y)) return;
+    }
+    // 2) já está num lugar sem espaço para a cabeça.
+    //    Em cima de corrimão/toldo: atravessa para baixo e cai.
+    //    Em qualquer outro lugar: não trava; ele pode andar normalmente para sair dali.
+    const under = this.layer.getTileAtWorldXY(b.center.x, b.bottom + 1);
+    if (under && this.oneway.includes(under.index)) {
+      p.dropThrough = 0.3;
+      b.y += 3;
+      b.velocity.y = Math.max(b.velocity.y, 60);
+      b.updateCenter();
+    }
+  }
+
   // Lógica por passo de física
   step(delta) {
     const dt = delta > 1 ? delta / 1000 : delta;
     if (this.done) {
       this.players.forEach((p) => p.step(dt, EMPTY_INPUT));
+      // cena final: caminham até ficar lado a lado, um de frente para o outro
+      this.players.forEach((p) => {
+        if (p.finalX === undefined || !p.onGround) return;
+        const dx = p.finalX - p.x;
+        p.body.velocity.x = Math.abs(dx) > 0.6 ? Phaser.Math.Clamp(dx * 5, -45, 45) : 0;
+        if (Math.abs(dx) <= 0.6) p.facing = p.finalFacing;
+      });
       this.players.forEach((p) => p.endStep());
       return;
     }
@@ -202,12 +277,19 @@ export class LevelScene extends Phaser.Scene {
       }
     }
     this.players.forEach((p, k) => p.step(dt, inputs[k], opts[k]));
+    this.players.forEach((p) => {
+      if (p.dropThrough > 0) p.dropThrough -= dt;
+      this.keepOutOfWalls(p);
+    });
 
     // Interagir com alavancas
     this.players.forEach((p, k) => {
       if (!inputs[k].interactPressed) return;
       const lever = this.levers.find((l) => l.near(p.body));
-      if (lever) lever.toggle();
+      if (lever) {
+        lever.toggle();
+        if (this.theme.onLever) this.theme.onLever(this, lever);
+      }
     });
 
     this.boxes.forEach((b) => b.step(dt, this.worldH, this.fx));
@@ -229,6 +311,8 @@ export class LevelScene extends Phaser.Scene {
       if (h.update(pBodies, time)) this.heartsGot++;
     });
 
+    this.checkTriggers();
+
     // Saída: os dois juntos
     if (this.exit) {
       const n = this.players.filter((p) => !p.frozen && this.exit.inside(p.body)).length;
@@ -239,29 +323,127 @@ export class LevelScene extends Phaser.Scene {
     this.players.forEach((p) => p.endStep());
   }
 
+  say(key) {
+    const lines = this.dialogos[key];
+    if (lines) this.dialog.play(lines);
+  }
+
+  // Diálogos disparados por lugar (gatilhos no mapa) e por eventos (botão, porta...)
+  checkTriggers() {
+    for (const t of this.triggers) {
+      if (t.fired) continue;
+      const who = t.quem === 'ela' ? [this.ela] : t.quem === 'ele' ? [this.ele] : this.players;
+      const hit = who.some((p) => !p.frozen && p.x >= t.c * TILE && p.x < (t.c + 1) * TILE && Math.abs(p.feet - (t.r + 1) * TILE) < 48);
+      if (hit) {
+        t.fired = true;
+        this.say(t.dialogo);
+      }
+    }
+    const ev = this.lvl.data.eventos;
+    if (!ev) return;
+    const check = (name, on) => {
+      if (on && ev[name] && !this.eventsFired.has(name)) {
+        this.eventsFired.add(name);
+        this.say(ev[name]);
+      }
+    };
+    this.buttons.forEach((b, i) => check(`B${i + 1}`, b.active));
+    this.levers.forEach((l, i) => check(`L${i + 1}`, l.active));
+    this.doors.forEach((d, i) => check(`P${i + 1}`, d.open >= 1));
+  }
+
   switchActive() {
     this.active = this.active === this.ele ? this.ela : this.ele;
     this.fx.sparkle(this.active.x, this.active.feet - this.active.def.h - 4, 5);
+    Sfx.switchChar(this.active.id);
     this.active.squash = { x: 1.2, y: 0.85 };
   }
 
   complete() {
     if (this.done) return;
     this.done = true;
+    // salva já, antes da tela de memória (se fecharem o navegador, o progresso fica)
+    this.primeiraVez = this.lvl.memoria ? Progresso.concluir(this.lvl.memoria, this.heartsGot, this.heartsTotal) : false;
+    const fin = this.lvl.data.final;
+    // final especial feito pelo tema (ex.: sentar à mesa e comer no Bulls)
+    if (fin && fin.cena && this.theme.finale) {
+      if (this.exit && this.exit.open) this.exit.open();
+      this.dialog.destroy();
+      this.players.forEach((p) => {
+        p.frozen = true;
+        p.body.setVelocity(0, 0);
+      });
+      this.theme.finale(this, fin, () => this.openMemoria());
+      return;
+    }
+    if (fin && fin.comemorar === false) {
+      // final em cena: os dois lado a lado, um olhando para o outro
+      this.exit.open();
+      Sfx.ding();
+      const [a, b] = this.ele.x <= this.ela.x ? [this.ele, this.ela] : [this.ela, this.ele];
+      const mid = (a.x + b.x) / 2;
+      a.finalX = Math.min(a.x, mid - 9);
+      b.finalX = Math.max(b.x, mid + 9);
+      a.finalFacing = 1;
+      b.finalFacing = -1;
+      a.facing = 1;
+      b.facing = -1;
+      this.dialog.destroy();
+      this.time.delayedCall(500, () => {
+        this.dialog.play(this.dialogos[fin.dialogo] || [], () => {
+          if (fin.beijo) {
+            this.kiss(a, b, mid);
+            return;
+          }
+          this.fx.hearts(this.exit.cx, this.exit.bottom - 40, 6);
+          this.time.delayedCall(900, () => {
+            this.openMemoria();
+          });
+        });
+      });
+      return;
+    }
+    if (this.exit.open) this.exit.open();
+    Sfx.fanfare();
     this.players.forEach((p) => p.celebrate());
     this.fx.hearts(this.exit.cx, this.exit.bottom - 30, 14);
     this.time.delayedCall(400, () => this.fx.hearts(this.exit.cx - 10, this.exit.bottom - 40, 10));
     this.time.delayedCall(800, () => this.fx.hearts(this.exit.cx + 10, this.exit.bottom - 40, 10));
-    this.time.delayedCall(2200, () => {
-      this.scene.pause();
-      this.scene.launch('FaseConcluida', { level: this });
+    this.time.delayedCall(2200, () => this.openMemoria());
+  }
+
+  // O beijo: os dois chegam pertinho, um coração grande aparece entre eles e sobem coraçõezinhos
+  kiss(a, b, mid) {
+    a.finalX = mid - 5;
+    b.finalX = mid + 5;
+    this.time.delayedCall(900, () => {
+      a.squash = { x: 1.08, y: 0.94 };
+      b.squash = { x: 1.08, y: 0.94 };
+      Sfx.heart();
+      const top = Math.min(a.feet - a.def.h, b.feet - b.def.h) - 6;
+      const big = this.add.image(mid, top, 'heart_big').setScale(0.05).setDepth(30);
+      this.tweens.add({ targets: big, scale: 1.6, duration: 500, ease: 'Back.easeOut' });
+      this.tweens.add({ targets: big, y: top - 26, alpha: 0, duration: 1400, delay: 1100, ease: 'Sine.easeIn' });
+      for (let k = 0; k < 6; k++) {
+        this.time.delayedCall(250 + k * 260, () => this.fx.hearts(mid + Phaser.Math.Between(-10, 10), top + 6, 4));
+      }
+      this.time.delayedCall(700, () => Sfx.ding());
+      this.time.delayedCall(3000, () => this.openMemoria());
     });
+  }
+
+  openMemoria() {
+    this.scene.pause();
+    this.scene.pause('HUD');
+    this.scene.launch('Memoria', { level: this, primeiraVez: this.primeiraVez });
   }
 
   openPause() {
     if (this.done || !this.scene.isActive()) return;
     this.scene.pause();
     this.scene.pause('HUD');
+    Sfx.pause();
+    Music.duck(true);
     this.scene.launch('Pause', { level: this });
   }
 
@@ -278,14 +460,23 @@ export class LevelScene extends Phaser.Scene {
     this.reader.sync(all);
   }
 
+  stopOverlays() {
+    ['HUD', 'LevelBG', 'Pause', 'Help', 'Memoria'].forEach((k) => this.scene.stop(k));
+  }
+
   restart() {
-    ['HUD', 'LevelBG', 'Pause', 'Help', 'FaseConcluida'].forEach((k) => this.scene.stop(k));
+    this.stopOverlays();
     this.scene.restart({ fase: this.faseKey, mode: this.mode, skipHelp: true });
   }
 
   toMenu() {
-    ['HUD', 'LevelBG', 'Pause', 'Help', 'FaseConcluida'].forEach((k) => this.scene.stop(k));
-    this.scene.start('Menu');
+    this.goTo('Menu');
+  }
+
+  // Sai da fase para outra cena (seleção, transição, final...)
+  goTo(key, data) {
+    this.stopOverlays();
+    this.scene.start(key, data);
   }
 
   update(time, delta) {
@@ -296,6 +487,8 @@ export class LevelScene extends Phaser.Scene {
     }
 
     this.players.forEach((p) => p.render(dt, time));
+    if (this.theme.update) this.theme.update(this, dt);
+    this.dialog.update(dt);
     this.coopCam.update(dt, this.active);
     if (this.exit) this.exit.update(dt, time, this.exitCount || 0);
 

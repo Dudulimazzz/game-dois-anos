@@ -3,6 +3,7 @@
 import { GAME_W, GAME_H, PX, UI } from '../config.js';
 import { txt, panel, keycap } from '../systems/ui.js';
 import { Touch } from '../systems/touch.js';
+import { ORIGIN_X, ORIGIN_Y } from '../systems/characters.js';
 
 export class HUDScene extends Phaser.Scene {
   constructor() {
@@ -35,9 +36,10 @@ export class HUDScene extends Phaser.Scene {
 
     // Modo 1 jogador: quem está sendo controlado
     if (L.mode === 'um') {
-      const y = GAME_H - 64;
+      // no celular os botões ocupam o rodapé: o indicador sobe para baixo do placar
+      const y = Touch.isTouch ? 76 : GAME_H - 64;
       panel(this, 12, y - 4, 230, 56, { alpha: 0.9 });
-      this.portrait = this.add.image(44, y + 46, 'ele_ph').setOrigin(0.5, 1).setScale(1.2);
+      this.portrait = this.add.sprite(44, y + 50, 'ele-sheet', 'idle-0').setOrigin(ORIGIN_X, ORIGIN_Y).setScale(1);
       this.activeName = txt(this, 72, y + 12, '', 20, UI.text, { ox: 0 });
       if (!Touch.isTouch) {
         keycap(this, 100, y + 36, 'Tab', { top: 0xffe9f0 }).setScale(0.8);
@@ -60,9 +62,9 @@ export class HUDScene extends Phaser.Scene {
     if (L.mode === 'um' && L.active !== this.lastActive) {
       this.lastActive = L.active;
       const a = L.active;
-      this.portrait.setTexture(`${a.id}_ph`);
+      this.portrait.play(`${a.id}-idle`);
       this.activeName.setText(a.nome).setColor(a.def.corCss);
-      this.tweens.add({ targets: this.portrait, scaleY: { from: 0.8, to: 1.2 }, duration: 200, ease: 'Back.easeOut' });
+      this.tweens.add({ targets: this.portrait, scaleY: { from: 0.7, to: 1 }, duration: 200, ease: 'Back.easeOut' });
     }
   }
 }

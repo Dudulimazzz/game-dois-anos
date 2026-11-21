@@ -18,7 +18,8 @@ export class CoopCamera {
     this.players = players;
     this.mode = mode;
     this.mapH = mapH;
-    this.cam.setBounds(0, 0, worldW, worldH);
+    // limites com folga em cima: se a fase for mais baixa que a tela, ela fica centralizada
+    this.cam.setBounds(0, -VIEW_H * 2, worldW, worldH + VIEW_H * 2);
     this.z = 1;
     this.look = 0;
     const t = this.target(players[0]);
@@ -35,8 +36,21 @@ export class CoopCamera {
     return { x: active.x + this.look, y: active.feet - 30 };
   }
 
+  // foco: aproxima a câmera de um ponto (ex.: a mesa no fim da fase do Bulls)
+  setFoco(x, y, zoom) {
+    this.foco = { x, y, zoom };
+  }
+
   update(dt, active) {
     let zt = 1;
+    if (this.foco) {
+      const k = 1 - Math.exp(-dt * 2.5);
+      this.x += (this.foco.x - this.x) * k;
+      this.y += (this.foco.y - this.y) * k;
+      this.z += (this.foco.zoom - this.z) * k;
+      this.apply();
+      return;
+    }
     if (this.mode === 'dois') {
       const [a, b] = this.players;
       const sx = Math.abs(a.x - b.x) + MARGIN_X;
@@ -58,7 +72,10 @@ export class CoopCamera {
     this.cam.setZoom(PX * this.z);
     // Não mostra o chão extra além do necessário: o fundo da tela fica no fim do mapa
     const halfH = VIEW_H / this.z / 2;
-    const y = Math.min(this.y, Math.max(halfH, this.mapH - halfH));
+    let y;
+    if (this.foco) y = this.y;
+    else if (halfH * 2 >= this.mapH) y = this.mapH / 2;
+    else y = Math.max(halfH, Math.min(this.y, this.mapH - halfH));
     this.cam.centerOn(this.x, y);
   }
 }

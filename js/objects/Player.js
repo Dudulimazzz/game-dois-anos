@@ -4,6 +4,8 @@
 // stretch) sem mexer na caixa de colisão.
 
 import { FEEL, GRAVITY } from '../config.js';
+import { ORIGIN_X, ORIGIN_Y } from '../systems/characters.js';
+import { Sfx } from '../systems/sfx.js';
 
 function approach(v, target, step) {
   if (v < target) return Math.min(v + step, target);
@@ -27,7 +29,9 @@ export class Player {
     this.body.setMaxVelocityX(400);
 
     this.shadow = scene.add.ellipse(x, feetY, def.w + 4, 3, 0x1a0f1f, 0.3).setDepth(9);
-    this.sprite = scene.add.image(x, feetY, `${def.id}_ph`).setOrigin(0.5, 1).setDepth(10);
+    this.sprite = scene.add.sprite(x, feetY, `${def.id}-sheet`).setOrigin(ORIGIN_X, ORIGIN_Y).setDepth(10);
+    this.anim = '';
+    this.playAnim('idle');
 
     this.checkpoint = { x, y: feetY };
     this.facing = 1;
@@ -42,7 +46,6 @@ export class Player {
     this.standingOn = null;
     this.frozen = false;
     this.celebrating = false;
-    this.walkTime = 0;
     this.squash = { x: 1, y: 1 };
     this.dir = 0;
   }
@@ -116,6 +119,7 @@ export class Player {
       this.standingOn = null;
       this.squash = { x: 0.8, y: 1.2 };
       this.fx.dust(this.x, this.feet, 4);
+      Sfx.jump(this.id);
     }
     if (this.jumping && !input.jumpHeld && b.velocity.y < 0) {
       b.velocity.y *= FEEL.jumpCut;
@@ -135,6 +139,22 @@ export class Player {
       const k = Math.min(1, this.lastVy / 400);
       this.squash = { x: 1 + 0.3 * k, y: 1 - 0.25 * k };
       this.fx.dust(this.x, this.feet, 3 + Math.round(k * 4));
+      Sfx.land(0.5 + k);
+    }
+    // passinhos: poeira leve e som baixinho ao correr
+    if (this.onGround && Math.abs(b.velocity.x) > this.def.speed * 0.7 && !this.pushing) {
+      this.stepT = (this.stepT || 0) + dt;
+      if (this.stepT > 0.27) {
+        this.stepT = 0;
+        this.fx.dust(this.x - this.facing * 3, this.feet, 1);
+        Sfx.step();
+      }
+    } else if (this.pushing === true) {
+      this.stepT = (this.stepT || 0) + dt;
+      if (this.stepT > 0.4) {
+        this.stepT = 0;
+        Sfx.push();
+      }
     }
     this.wasOnGround = this.onGround;
     this.lastVy = b.velocity.y;
@@ -167,23 +187,30 @@ export class Player {
       return;
     }
 
-    let bob = 0;
-    let breathe = 1;
-    if (this.onGround && Math.abs(b.velocity.x) > 10) {
-      this.walkTime += dt * (this.pushing === true ? 7 : 12);
-      bob = Math.abs(Math.sin(this.walkTime)) > 0.5 ? -1 : 0;
-    } else if (this.onGround) {
-      breathe = 1 + Math.sin(time / 400) * 0.025;
-    }
+    // Escolhe a animação pelo estado
+    let anim = 'idle';
+    if (this.celebrating) anim = 'celebrate';
+    else if (!this.onGround) anim = b.velocity.y < 0 ? 'jump' : 'fall';
+    else if (this.pushing) anim = 'push';
+    else if (Math.abs(b.velocity.x) > 12) anim = 'walk';
+    this.playAnim(anim);
+    if (anim === 'walk') s.anims.timeScale = Math.max(0.5, Math.min(1.2, Math.abs(b.velocity.x) / this.def.speed));
+    else s.anims.timeScale = 1;
 
-    s.x = b.center.x + (this.pushing ? this.facing : 0);
-    s.y = b.bottom + bob;
+    s.x = b.center.x;
+    s.y = b.bottom;
     s.setFlipX(this.facing < 0);
-    s.setScale(this.squash.x, this.squash.y * breathe);
+    s.setScale(this.squash.x, this.squash.y);
 
     this.shadow.setVisible(this.onGround);
     this.shadow.x = b.center.x;
     this.shadow.y = b.bottom;
+  }
+
+  playAnim(name) {
+    if (this.anim === name) return;
+    this.anim = name;
+    this.sprite.play(`${this.id}-${name}`);
   }
 
   // Volta ao último checkpoint com uma animação fofa (sem game over)
@@ -195,6 +222,12 @@ export class Player {
     b.enable = false;
     const scene = this.scene;
     this.fx.hearts(this.sprite.x, this.sprite.y - this.def.h / 2, 5);
+    Sfx.respawn();
+    try {
+      if (navigator.vibrate) navigator.vibrate(40);
+    } catch (e) {
+      /* sem vibração */
+    }
     scene.tweens.add({
       targets: this.sprite,
       scaleX: 0,

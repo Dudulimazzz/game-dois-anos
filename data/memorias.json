@@ -8,6 +8,451 @@
     "ela": "Ágata",
     "desde": "08/12/2024"
   },
-  "fases": [],
-  "cartaFinal": "TODO: escrever a carta final (Fase 4)."
+  "_COMO_EDITAR": "Cada fase tem: 'data' (aparece na transição e na tela de memória), 'foto' (caminho da foto, ex.: assets/fotos/onibus.webp; deixe vazio enquanto não tiver), 'legenda' (opcional, aparece embaixo da foto; sem ela aparece a data) e 'texto' (a memória; use \\n para pular linha). Texto grande vira páginas sozinho.",
+  "_TODO": "TODO: os diálogos de cada fase são provisórios (veja o _TODO dentro de cada uma). 'pensamento': true mostra um balão de pensamento; 'pausa' é quantos segundos o balão fica na tela.",
+  "fases": [
+    {
+      "id": "rua",
+      "nome": "A rua: o dia em que ela falou primeiro",
+      "data": "05/11/2024",
+      "foto": "assets/fotos/rua.webp",
+      "texto": "TODO: escrever a memória da rua.",
+      "_TODO": "TODO: diálogos provisórios. O mais importante para trocar é a fala dela no 'final' (o que ela disse de verdade) e a frase que ele tinha ensaiado. A foto é a imagem que ficou em referencias/ (pode trocar).",
+      "dialogos": {
+        "intro_ele": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Ela desceu no mesmo ponto que eu... de novo."
+          }
+        ],
+        "intro_ela": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Aquele menino de cabelo cacheado desceu aqui também."
+          }
+        ],
+        "atravessar": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Espera os carros passarem..."
+          },
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Olha pros dois lados... e finge que não tá olhando pra ela."
+          }
+        ],
+        "ele_caminhao": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Caminhão parado no meio do caminho? Por cima eu passo."
+          }
+        ],
+        "ela_caminhao": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Por baixo é mais rápido."
+          }
+        ],
+        "ele_portao": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Portão do pátio fechado. Tem que segurar aquele botão no chão..."
+          }
+        ],
+        "ele_perto": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Hoje eu falo com ela. Hoje!"
+          },
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Já ensaiei a frase o caminho todo."
+          }
+        ],
+        "ela_perto": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Se depender dele, vai demorar uma vida..."
+          }
+        ],
+        "final": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "A frase ensaiada: \"Oi, a gente pega sempre o mesmo ônibus, né?\""
+          },
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Três... dois..."
+          },
+          {
+            "quem": "ela",
+            "texto": "Oi! A gente pega sempre o mesmo ônibus, né?"
+          },
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "...ela roubou a minha fala.",
+            "pausa": 2
+          },
+          {
+            "quem": "ele",
+            "texto": "O-oi! É... é sim!"
+          }
+        ]
+      }
+    },
+    {
+      "id": "onibus",
+      "nome": "O ônibus",
+      "data": "13/11/2024",
+      "foto": "assets/fotos/onibus.webp",
+      "letreiro": "TODO: NÚMERO E DESTINO DA LINHA (ex.: 0.000 VIA ...)",
+      "texto": "Foi aqui que a gente começou a se conhecer. Entre uma parada e outra, fomos contando o que cada um cursava na faculdade e um pouco das coisas que a gente fazia da vida.",
+      "dialogos": {
+        "ele_inicio": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Ela tá no ônibus! Depois daquele 'oi', agora é minha vez de puxar assunto."
+          }
+        ],
+        "ela_inicio": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Olha ele ali. Vou chegar mais perto."
+          }
+        ],
+        "ele_mochila": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Pronto. Essa mochila não sai mais daí."
+          }
+        ],
+        "ela_porta": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Ué, a porta abriu sozinha?"
+          }
+        ],
+        "ela_parada": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Ding! A nossa parada é a próxima."
+          }
+        ],
+        "ele_porta": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Alguém pediu parada. Ufa!"
+          }
+        ],
+        "ele_perto": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Agora vai. Assunto: faculdade."
+          }
+        ],
+        "ela_perto": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Ele vem falar comigo?"
+          }
+        ],
+        "final": [
+          {
+            "quem": "ele",
+            "texto": "E aí, você faz faculdade de quê?"
+          },
+          {
+            "quem": "ela",
+            "texto": "TODO: o curso dela"
+          },
+          {
+            "quem": "ela",
+            "texto": "E você?"
+          },
+          {
+            "quem": "ele",
+            "texto": "TODO: o curso dele"
+          },
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "A viagem nunca passou tão rápido.",
+            "pausa": 2
+          }
+        ]
+      },
+      "_TODO": "TODO: diálogos provisórios. Agora vocês já se conhecem (ela falou primeiro na fase 1): troque pelos cursos de verdade e pelo jeito de vocês."
+    },
+    {
+      "id": "calcada",
+      "nome": "A calçada do condomínio",
+      "data": "13/11/2024",
+      "foto": "",
+      "texto": "TODO: escrever a memória do primeiro beijo.",
+      "_TODO": "TODO: diálogos provisórios do primeiro beijo (a frase do 'final' vem do roteiro). Troque pelo jeito de vocês.",
+      "dialogos": {
+        "ele_inicio": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Já tá tarde... mas eu não queria que essa noite acabasse."
+          }
+        ],
+        "ela_inicio": [
+          {
+            "quem": "ela",
+            "texto": "Vamos andar mais um pouquinho?"
+          }
+        ],
+        "ele_grade": [
+          {
+            "quem": "ele",
+            "texto": "Portão fechado bem agora..."
+          }
+        ],
+        "ela_fresta": [
+          {
+            "quem": "ela",
+            "texto": "Deixa comigo, eu passo por baixo!"
+          }
+        ],
+        "ela_interfone": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Apertei o interfone. Agora é sair de fininho!"
+          }
+        ],
+        "ele_portao": [
+          {
+            "quem": "ele",
+            "texto": "Abriu! Valeu!"
+          }
+        ],
+        "ele_caixote": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Uma encomenda esquecida na rua. Deixa que eu empurro."
+          }
+        ],
+        "ele_botao": [
+          {
+            "quem": "ele",
+            "texto": "Pronto, pode passar!"
+          }
+        ],
+        "ela_muro": [
+          {
+            "quem": "ela",
+            "texto": "Me dá um apoio? Eu subo nos seus ombros."
+          }
+        ],
+        "ele_muro": [
+          {
+            "quem": "ele",
+            "texto": "Pode subir, eu seguro."
+          }
+        ],
+        "ela_subiu": [
+          {
+            "quem": "ela",
+            "texto": "Consegui!"
+          }
+        ],
+        "ele_perto": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "O coração tá batendo tão alto que ela vai ouvir."
+          }
+        ],
+        "ela_perto": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Ele tá nervoso. Eu também."
+          }
+        ],
+        "final": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Embaixo de um coqueiro, na calçada do condomínio..."
+          },
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Não era o lugar mais romântico do mundo...",
+            "pausa": 2
+          },
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "...mas virou o mais importante.",
+            "pausa": 2.4
+          }
+        ]
+      }
+    },
+    {
+      "id": "bulls",
+      "nome": "Bulls (Gama)",
+      "data": "17/11/2024",
+      "foto": "assets/fotos/bulls.webp",
+      "texto": "TODO: escrever a memória do dia no Bulls.",
+      "_TODO": "TODO: diálogos provisórios. No 'final' vocês estão sentados comendo e conversando sobre a vida: troque pelas coisas que vocês conversaram de verdade.",
+      "dialogos": {
+        "ele_porta": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Porta automática... eu seguro pra ela entrar."
+          }
+        ],
+        "ela_dentro": [
+          {
+            "quem": "ela",
+            "texto": "Que lugar bonito!"
+          }
+        ],
+        "ele_mesa": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Mesa comprida no caminho. Por cima eu passo."
+          }
+        ],
+        "ela_mesa": [
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Por baixo é bem mais fácil."
+          }
+        ],
+        "ele_cadeira": [
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "Esse tablado é alto pra ela... vou empurrar uma cadeira."
+          }
+        ],
+        "ela_tablado": [
+          {
+            "quem": "ela",
+            "texto": "Aquela mesa perto do vidro é perfeita."
+          }
+        ],
+        "final": [
+          {
+            "quem": "ele",
+            "texto": "Então... me conta da sua vida."
+          },
+          {
+            "quem": "ela",
+            "texto": "Tudo? Vai demorar, hein."
+          },
+          {
+            "quem": "ele",
+            "texto": "Eu tenho a tarde toda."
+          },
+          {
+            "quem": "ela",
+            "texto": "TODO: algo que vocês conversaram"
+          },
+          {
+            "quem": "ele",
+            "pensamento": true,
+            "texto": "A gente falou de tudo. E o tempo passou voando."
+          },
+          {
+            "quem": "ela",
+            "pensamento": true,
+            "texto": "Nem vi a comida acabar.",
+            "pausa": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "ricco",
+      "nome": "Ricco Burger (Asa Sul, DF)",
+      "data": "TODO: data",
+      "foto": "",
+      "texto": "TODO: escrever a memória do nosso lugar."
+    },
+    {
+      "id": "cachoeira",
+      "nome": "Cachoeira em Pirenópolis",
+      "data": "TODO: data",
+      "foto": "",
+      "texto": "TODO: escrever a memória da viagem."
+    },
+    {
+      "id": "casa",
+      "nome": "Nossa casa do futuro",
+      "data": "TODO: data",
+      "foto": "",
+      "texto": "TODO: escrever a memória final."
+    }
+  ],
+  "cartaFinal": {
+    "titulo": "Para a Ágata",
+    "texto": "TODO: escrever a carta final. Ela aparece letra por letra num papel de caderno, depois da última fase (e pode ser relida pela seleção de fases). Pode ser longa: o texto vira páginas sozinho. Use \\n\\n para separar parágrafos.",
+    "assinatura": "TODO: assinatura (ex.: Com amor, Dudu)"
+  },
+  "capitulo3": {
+    "titulo": "Capítulo 3",
+    "subtitulo": "em breve"
+  },
+  "creditos": {
+    "_COMO_EDITAR": "'secoes' são os blocos que sobem na tela (título + nomes). A lista de lugares e os créditos de terceiros entram sozinhos. 'fotosExtras' são fotos a mais para passar nos créditos, ex.: [{ \"foto\": \"assets/fotos/extra1.webp\", \"legenda\": \"...\" }]. 'fim' é a mensagem que fica parada no final (a primeira linha aparece maior).",
+    "secoes": [
+      {
+        "titulo": "Estrelando",
+        "nomes": [
+          "Dudu",
+          "Ágata"
+        ]
+      },
+      {
+        "titulo": "Um jogo feito por",
+        "nomes": [
+          "Dudu"
+        ]
+      },
+      {
+        "titulo": "TODO: mais uma seção (ex.: Agradecimentos)",
+        "nomes": [
+          "TODO: nomes"
+        ]
+      }
+    ],
+    "fotosExtras": [],
+    "fim": [
+      "Feliz 2 anos!",
+      "08/12/2024"
+    ]
+  }
 }

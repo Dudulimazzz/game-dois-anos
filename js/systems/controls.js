@@ -101,6 +101,8 @@ export const BINDS = {
   pause: ['Escape', 'KeyP', 'T_pause'],
   menuUp: ['ArrowUp', 'KeyW'],
   menuDown: ['ArrowDown', 'KeyS'],
+  menuLeft: ['ArrowLeft', 'KeyA'],
+  menuRight: ['ArrowRight', 'KeyD'],
   menuOk: ['Enter', 'Space', 'NumpadEnter'],
   menuBack: ['Escape', 'Backspace'],
 };

@@ -1,6 +1,7 @@
 // Mecanismos de puzzle: botão de pressão, alavanca e porta.
 
 import { TILE } from '../config.js';
+import { Sfx } from '../systems/sfx.js';
 
 const rectHit = (b, x, y, w, h) => b.right > x && b.left < x + w && b.bottom > y && b.top < y + h;
 
@@ -19,6 +20,7 @@ export class PressureButton {
     this.active = bodies.some((b) => b.enable && rectHit(b, this.x + 2, this.y + 10, TILE - 4, 6));
     if (this.active !== was) {
       this.sprite.setTexture(this.active ? 'button_down' : 'button_up');
+      Sfx.click();
       if (this.active) this.fx.sparkle(this.x + 8, this.y + 12, 4);
     }
   }
@@ -26,12 +28,13 @@ export class PressureButton {
 
 // Alavanca: aperte "interagir" perto dela para ligar/desligar.
 export class Lever {
-  constructor(scene, c, r, fx) {
+  constructor(scene, c, r, fx, keys = ['lever_off', 'lever_on']) {
     this.scene = scene;
     this.fx = fx;
+    this.keys = keys;
     this.x = c * TILE;
     this.y = r * TILE;
-    this.sprite = scene.add.image(this.x, this.y, 'lever_off').setOrigin(0, 0).setDepth(4);
+    this.sprite = scene.add.image(this.x, this.y, keys[0]).setOrigin(0, 0).setDepth(4);
     this.active = false;
     this.hint = scene.add.image(this.x + 8, this.y - 6, 'marker').setDepth(15).setTint(0xffd36e).setVisible(false);
   }
@@ -40,7 +43,8 @@ export class Lever {
   }
   toggle() {
     this.active = !this.active;
-    this.sprite.setTexture(this.active ? 'lever_on' : 'lever_off');
+    this.sprite.setTexture(this.active ? this.keys[1] : this.keys[0]);
+    Sfx.click();
     this.fx.sparkle(this.x + 8, this.y + 4, 6);
     this.scene.cameras.main.shake(80, 0.002);
   }
@@ -53,13 +57,13 @@ export class Lever {
 // Porta: sobe para dentro do teto quando aberta.
 // Regra de mapa: em cima de uma porta precisa ter parede/teto (ela se esconde ali).
 export class Door {
-  constructor(scene, c, r, height, fx) {
+  constructor(scene, c, r, height, fx, key = 'door') {
     this.scene = scene;
     this.fx = fx;
     this.x = c * TILE;
     this.baseY = r * TILE;
     this.h = height * TILE;
-    this.sprite = scene.add.tileSprite(this.x, this.baseY, TILE, this.h, 'door').setOrigin(0, 0).setDepth(1);
+    this.sprite = scene.add.tileSprite(this.x, this.baseY, TILE, this.h, key).setOrigin(0, 0).setDepth(1);
     scene.physics.add.existing(this.sprite);
     this.body = this.sprite.body;
     this.body.setImmovable(true);
@@ -80,6 +84,7 @@ export class Door {
       const blocked = bodies.some((b) => b.enable && rectHit(b, this.x + 1, this.baseY, TILE - 2, this.h));
       if (!blocked) this.open = Math.max(0, this.open - dt * 2.2);
     }
+    if (prev === 0 && this.open > 0) Sfx.door();
     if (prev !== this.open) {
       const e = this.open < 0.5 ? 2 * this.open * this.open : 1 - Math.pow(-2 * this.open + 2, 2) / 2;
       this.sprite.y = Math.round(this.baseY - e * this.h);
